@@ -19,4 +19,4 @@ The design of the vehicle is decided by the team. The constraints that we are re
 
 ### Timeline
 
-The project will be completed by the 19th of October 2021 which is the date of the [Waikato Engineering Design Show](https://eng.waikato.ac.nz/study/engineering-design-show).
+The project will be completed by the 19th of October 2021 which is the date of the <a href="https://eng.waikato.ac.nz/study/engineering-design-show" target="_blank">Waikato Engineering Design Show</a>.
