@@ -5,6 +5,8 @@ Trusty Tui is an autonomous vehicle designed to follow a predefined track while 
 
 The track looks like the following image:
 
+[READMEimgs/20210802_095915.jpg]
+
 ## Project Contraints
 
 ### Parts
