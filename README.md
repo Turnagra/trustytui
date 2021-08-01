@@ -3,7 +3,7 @@ A depository for the ENGEE281/ ENGME280 autonomous vehicle project.
 
 Trusty Tui is an autonomous vehicle designed to follow a predefined track while avoiding obstacles. We wanted to design a spiritual sibling to the [Reliant Robin](https://www.youtube.com/watch?v=QQh56geU0X8). 
 
-The track looks like the following image:
+You can view what the track looks like in the following image:
 
 ![Image of Track](https://raw.githubusercontent.com/Turnagra/trustytui/main/READMEimgs/20210802_095915.jpg)
 
@@ -19,4 +19,4 @@ The design of the vehicle is decided by the team. The constraints that we are re
 
 ### Timeline
 
-The project must be completed by the 19th of October 2021 which is the date of the [Waikato Engineering Design Show](https://eng.waikato.ac.nz/study/engineering-design-show).
+The project will be completed by the 19th of October 2021 which is the date of the [Waikato Engineering Design Show](https://eng.waikato.ac.nz/study/engineering-design-show).
