@@ -1,3 +1,0 @@
-s is a test text.
-
-Written on 2021-08-09
