@@ -18,6 +18,7 @@ def momentImage(image_in, image_overlay):
 
 def hsvFilter(val):
     global image_mask
+    global HSV_ranges
     
     hueCentre = cv.getTrackbarPos("Hue Centre", "HSV")
     hueAccuracy = cv.getTrackbarPos("Hue Accuracy", "HSV")
@@ -37,6 +38,8 @@ def hsvFilter(val):
     valMin = int(valCentre - valAccuracy)
     valMax = int(valCentre + valAccuracy) 
 
+    HSV_ranges = [[hueMin, hueMax], [satMin, satMax], [valMin, valMax]]
+    
     image_mask = cv.inRange(image_hsv, (hueMin, satMin, valMin), (hueMax, satMax, valMax))
     cv.imshow("Image", image_mask)
 
@@ -97,18 +100,37 @@ def definePositions(val):
 def showTolerance(val):
     global moment_tolerance_list
 
-    image_drawn = image[:]
+    image_drawn = image.copy()
     
     for obstacle in moment_tolerance_list:
         cv.rectangle(image_drawn, (obstacle[0][0], obstacle[1][0]), (obstacle[0][1], obstacle[1][1]), (255, 0, 255), 5)
 
     cv.imshow("Image", image_drawn)
 
-image = cv.imread("5.jpg")
+def exportData(val):
+    global moment_tolerance_list
+    global HSV_ranges
+
+    print(HSV_ranges)
+    print(moment_tolerance_list)
+
+    for ranges in HSV_ranges:
+        for boundary in ranges:
+            file.write(str(boundary) + ",")
+
+    for obstacle in moment_tolerance_list:
+        for position in obstacle:
+            for coordinate in position:
+                file.write(str(coordinate) + ",")
+    
+
+image = cv.imread("Slide5.JPG")
 image_hsv = cv.cvtColor(image, cv.COLOR_BGR2HSV)
 
 showImage(image)
 showImage(image_hsv)
+
+file = open("datafile.txt", "w")
 
 makeSliders("HSV")
 
@@ -119,5 +141,8 @@ cv.namedWindow("Tolerance")
 cv.createTrackbar("Tolerance", "Tolerance", 50, 100, definePositions)
 cv.waitKey(0)
 
+exportData(1)
+
 cv.destroyAllWindows()
+file.close()
 
