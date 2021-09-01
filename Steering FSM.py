@@ -1,42 +1,50 @@
 ##=====================================================
-# SETTING UP THE TRANSITIONS
-#Creates a class of methods to deal with transitioning between states
-
-class transition(object):
-    def __init__(self, to_state):
-        self.to_state = to_state
-
-    def execute(self):
-        print("Transitioning...")
-
-##=====================================================
 # INITIALISING THE DIFFERENT STATES
 
-#This code is used to create the veer inwards state
+#Creating the states for the veering FSM
 class veer_in():
     def __init__(self, FSM):
         self.FSM = FSM
 
     def execute(self):
-        print("Veering inwards >>>")
-        
+        if follow_side == 0:
+            print("--> Veering in")
+        elif follow_side == 1:
+            print("<-- Veering in")
 
-#This code is used to create the veer outwards state
 class veer_out():
     def __init__(self, FSM):
         self.FSM = FSM
 
     def execute(self):
-        print("Veering outwards <<<")
+        if follow_side == 0:
+            print("<-- Veering out")
+        elif follow_side == 1:
+            print("--> Veering out")
         
-
-#This code is used to create the straight state
 class straight():
     def __init__(self, FSM):
         self.FSM = FSM
 
     def execute(self):
-        print("Going straight ^^^")
+        print("^^^ Going straight")
+
+#Creating the states for the side selection FSM
+class right():
+    def __init__(self, FSM):
+        self.FSM = FSM
+        self.state_name = "Right"
+
+    def execute(self):
+        print("Following the right line")
+
+class left():
+    def __init__(self, FSM):
+        self.FSM = FSM
+        self.state_name = "Left"
+
+    def execute(self):
+        print("Following the left line")
 
 ##=====================================================
 # SETTING UP A FINITE STATE MACHINE
@@ -46,13 +54,7 @@ class FSM(object):
     def __init__(self, character):
         self.char = character
         self.states = {}
-        self.transitions = {}
         self.current_state = None
-        self.transition = None
-
-    #Creating some useful basic methods for the FSM
-    def add_transition(self, transition_name, transition):
-        self.transitions[transition_name] = transition
 
     def add_state(self, state_name, state):
         self.states[state_name] = state
@@ -60,24 +62,13 @@ class FSM(object):
     def set_state(self, state_name):
         self.current_state = self.states[state_name]
 
-    def to_transition(self, to_transition):
-        self.transition = self.transitions[to_transition]
-
-    #repeatedly iterating through a state until there is a next state
     def execute(self):
-        if (self.transition):
-            #Transition to the new state
-            self.transition.execute()
-            #Change the state on the FSM
-            self.set_state(self.transition.to_state)
-            #Reseting the next state to a default
-            self.transition = None
         self.current_state.execute()
         
 ##=====================================================
-#IMPLEMENTING THE FSM
+# IMPLEMENTING THE FSMS
 
-class trusty_tui():
+class veering():
     def __init__(self):
         self.FSM = FSM(self)
 
@@ -86,34 +77,67 @@ class trusty_tui():
         self.FSM.add_state("Veer out", veer_out(self.FSM))
         self.FSM.add_state("Straight", straight(self.FSM))
 
-        #Initialising transitions
-        self.FSM.add_transition("Inwards", transition("Veer in"))
-        self.FSM.add_transition("Outwards", transition("Veer out"))
-        self.FSM.add_transition("Straighten", transition("Straight"))
-
         #Setting the first state
         self.FSM.set_state("Straight")
 
     #Defining behaviour for when this FSM is executed
-    def begin(self):
-        sensor = external
-        
-        while (sensor != "2"):
-            sensor = input("What are the sensors sending: ")
-            
-            if sensor == "01" or sensor == "10":
-                self.FSM.to_transition("Straighten")
-            elif sensor == "00":
-                self.FSM.to_transition("Inwards")
-            elif sensor == "11":
-                self.FSM.to_transition("Outwards")
+    def execute(self):
+        if sensor == [0,1]:
+            self.FSM.set_state("Straight")
+        elif sensor == [0,0]:
+            self.FSM.set_state("Veer in")
+        elif sensor == [1,1]:
+            self.FSM.set_state("Veer out")
 
-            self.FSM.execute()
+        self.FSM.execute()
+
+
+class side_selection():
+    def __init__(self):
+        self.FSM = FSM(self)
+
+        #Initialising states
+        self.FSM.add_state("Left", left(self.FSM))
+        self.FSM.add_state("Right", right(self.FSM))
+
+        #Setting the first state
+        self.FSM.set_state("Right")
+
+    #Defining behaviour for when this FSM is executed
+    def execute(self):
+        if follow_side == 1:
+            self.FSM.set_state("Right")
+        elif follow_side == 0:
+            self.FSM.set_state("Left")
+            
+        self.FSM.execute()
 
 ##=====================================================
 # THE ACTUAL CODE BIT
 
-external = "00"
+print("\nSide inputs:     left = 0    right = 1")
+print("Sensor inputs:   black = 0   white = 1\n")
 
-veer = trusty_tui()
-veer.begin()
+sensor = [0,1,1,0]
+
+veer = veering()
+side = side_selection()
+
+raw_side = input("Which side is being followed: ")
+follow_side = int(raw_side[0])
+
+side.execute()
+
+while (sensor[0] != 2):
+    raw_sensor = input("What are the sensors sending: ")
+
+    side.FSM.current_state.state_name
+
+    if follow_side == 0:
+        sensor = [int(raw_sensor[0]), int(raw_sensor[1])]
+    elif follow_side == 1:
+        sensor = [int(raw_sensor[3]), int(raw_sensor[2])]
+    elif follow_side == 2:
+        sensor = raw_sensor
+
+    veer.execute()
