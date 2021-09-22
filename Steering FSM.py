@@ -1,3 +1,6 @@
+import Servo as servo
+import Ultrasonic as ultrasonic
+
 ##=====================================================
 # INITIALISING THE DIFFERENT STATES
 
@@ -8,9 +11,9 @@ class veer_in():
 
     def execute(self):
         if follow_side == 0:
-            print("--> Veering in")
+            servo.right_turn()
         elif follow_side == 1:
-            print("<-- Veering in")
+            servo.left_turn()
 
 class veer_out():
     def __init__(self, FSM):
@@ -18,33 +21,33 @@ class veer_out():
 
     def execute(self):
         if follow_side == 0:
-            print("<-- Veering out")
+            servo.left_turn()
         elif follow_side == 1:
-            print("--> Veering out")
+            servo.right_turn()
         
 class straight():
     def __init__(self, FSM):
         self.FSM = FSM
 
     def execute(self):
-        print("^^^ Going straight")
+        servo.straighten()
 
-#Creating the states for the side selection FSM
-class right():
+#Creating the states for the ultrasonic FSM
+class forward():
     def __init__(self, FSM):
         self.FSM = FSM
-        self.state_name = "Right"
+        self.state_name = "Forward"
 
     def execute(self):
-        print("Following the right line")
+        ultrasonic.drive()
 
-class left():
+class backward():
     def __init__(self, FSM):
         self.FSM = FSM
-        self.state_name = "Left"
+        self.state_name = "Backward"
 
     def execute(self):
-        print("Following the left line")
+        ultrasonic.reverse()
 
 ##=====================================================
 # SETTING UP A FINITE STATE MACHINE
@@ -68,7 +71,7 @@ class FSM(object):
 ##=====================================================
 # IMPLEMENTING THE FSMS
 
-class veering():
+class veering_FSM():
     def __init__(self):
         self.FSM = FSM(self)
 
@@ -92,23 +95,23 @@ class veering():
         self.FSM.execute()
 
 
-class side_selection():
+class ultrasonic_FSM():
     def __init__(self):
         self.FSM = FSM(self)
 
         #Initialising states
-        self.FSM.add_state("Left", left(self.FSM))
-        self.FSM.add_state("Right", right(self.FSM))
+        self.FSM.add_state("Forward", forward(self.FSM))
+        self.FSM.add_state("Backward", backward(self.FSM))
 
         #Setting the first state
-        self.FSM.set_state("Right")
+        self.FSM.set_state("Forward")
 
     #Defining behaviour for when this FSM is executed
     def execute(self):
-        if follow_side == 1:
-            self.FSM.set_state("Right")
-        elif follow_side == 0:
-            self.FSM.set_state("Left")
+        if obstacle == 1:
+            self.FSM.set_state("Backward")
+        elif obstacle == 0:
+            self.FSM.set_state("Forward")
             
         self.FSM.execute()
 
@@ -119,19 +122,24 @@ print("\nSide inputs:     left = 0    right = 1")
 print("Sensor inputs:   black = 0   white = 1\n")
 
 sensor = [0,1,1,0]
+intersection = 0
 
-veer = veering()
-side = side_selection()
+directions_raw = input("Where should the car go?: ")
+directions = [int(directions_raw[0]),int(directions_raw[1])]
+follow_side = directions[0]
 
-raw_side = input("Which side is being followed: ")
-follow_side = int(raw_side[0])
-
-side.execute()
+veer = veering_FSM()
+ultra = ultrasonic_FSM()
 
 while (sensor[0] != 2):
     raw_sensor = input("What are the sensors sending: ")
+    obstacle = int(input("Obstacle?: "))
 
-    side.FSM.current_state.state_name
+    if (int(raw_sensor[0]) + int(raw_sensor[1]) + int(raw_sensor[2]) + int(raw_sensor[3])) >= 3:
+        print("INTERSECTION")
+        intersection += 1
+        if intersection == 3:
+            follow_side = directions[1]
 
     if follow_side == 0:
         sensor = [int(raw_sensor[0]), int(raw_sensor[1])]
@@ -140,4 +148,5 @@ while (sensor[0] != 2):
     elif follow_side == 2:
         sensor = raw_sensor
 
+    ultra.execute()
     veer.execute()
